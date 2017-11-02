@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-fofNode *new_fofNode(const char *name, NODE_TYPE type, StringInt val) {
+fofNode *new_fofNode(char *name, NODE_TYPE type, StringInt val) {
 
   fofNode *node = (fofNode*) calloc(1, sizeof(fofNode));
 
@@ -15,15 +15,15 @@ fofNode *new_fofNode(const char *name, NODE_TYPE type, StringInt val) {
   node->nodeCount = -1;
 
   // set value if string/integer node or nodeCount if folder
-  if (type = FOLDER_NODE) {
+  if (type == FOLDER_NODE) {
     node->nodeCount = 0;
-  } else if (type = STRING_NODE) {
-    node->val_c = (char*) malloc(strlen(val->c) +1);
-    strcpy(node->val_c, val->c);
-    node->val_c[strlen(val->c)] = '\0';
-    nodeCount = -1;
+  } else if (type == STRING_NODE) {
+    node->val_c = (char*) malloc(strlen(val.c) +1);
+    strcpy(node->val_c, val.c);
+    node->val_c[strlen(val.c)] = '\0';
+    node->nodeCount = -1;
   } else {
-    node->val_i = val->i;
+    node->val_i = val.i;
     node->nodeCount = -1;
   }
 
@@ -34,7 +34,7 @@ fofNode *new_fofNode(const char *name, NODE_TYPE type, StringInt val) {
 void destroy_fofNode(fofNode *pn) {
 
   NODE_TYPE type = get_node_type(pn);
-  if (type = FOLDER_NODE) {
+  if (type == FOLDER_NODE) {
 
     // Node is folder
     // recurse through all child nodes
@@ -63,16 +63,37 @@ NODE_TYPE get_node_type(fofNode *pn) {
 
 }
 
-STATUS_CODE add_sub_node(fofNode *parent,
-                         const char *name,
-                         NODE_TYPE type,
-                         StringInt val) {
+bool has_sub_node(fofNode *pn, char *name) {
 
-  // code
+  for (int i = 0; i < pn->nodeCount; i++) {
+    // Find the node
+    if (strcmp(pn->pChildren[i]->pszName, name) == 0) {
+      // we found the node so lets return
+      return true;
+    }
+  }
+
+  // if we get here the node was not found
+  return false;
 
 }
 
-STATUS_CODE del_sub_node(fofNode *parent, const char *name) {
+STATUS_CODE add_sub_node(fofNode *parent,
+                         char *name,
+                         NODE_TYPE type,
+                         StringInt val) {
+
+  if (has_sub_node(parent, name)) return NODE_ALREADY_EXISTS;
+
+  parent->pChildren = (fofNode**) realloc(parent->pChildren, sizeof(fofNode*) * parent->nodeCount);
+  parent->pChildren[parent->nodeCount] = new_fofNode(name, type, val);
+  parent->nodeCount++;
+
+  return OK;
+
+}
+
+STATUS_CODE del_sub_node(fofNode *parent, char *name) {
 
   int del = 0; // bool if node was deleted
   for (int i = 0; i < parent->nodeCount; i++) {
@@ -84,14 +105,19 @@ STATUS_CODE del_sub_node(fofNode *parent, const char *name) {
     else if (strcmp(parent->pChildren[i]->pszName, name) == 0) {
       // we found is now destroy if
       destroy_fofNode(parent->pChildren[i]);
+      parent->pChildren[i] = NULL;
       del = 1;
     }
   }
 
   if (del) {
-    // if node was found and deleted decrement nodeCount and realloc array
+    // if node was found and deleted, decrement nodeCount and realloc array
     parent->nodeCount--;
     parent->pChildren = (fofNode**) realloc(parent->pChildren, sizeof(fofNode*) * parent->nodeCount);
+
+    return OK;
+  } else {
+    return NODE_NOT_FOUND;
   }
 
 }

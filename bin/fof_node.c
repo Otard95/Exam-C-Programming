@@ -2,6 +2,7 @@
 #include "../inc/fof_node.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 fofNode *new_fofNode(char *name, NODE_TYPE type, StringInt val) {
 

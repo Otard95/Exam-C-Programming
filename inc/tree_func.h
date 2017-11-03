@@ -4,20 +4,20 @@
 #include "fof_node.h"
 #include "types.h"
 
-fofNode *Traverse (char *path);
+fofNode *Traverse (fofNode *root, char *path);
 
-STATUS_CODE SetInt (char *path, int   val);
-STATUS_CODE SetStr (char *path, char *val);
+STATUS_CODE SetInt (fofNode *root, char *path, int   val);
+STATUS_CODE SetStr (fofNode *root, char *path, char *val);
 
-NODE_TYPE GetType (char *path);
-int   GetInt (char *path);
-char *GetStr (char *path);
+NODE_TYPE GetType (fofNode *root, char *path);
+int   GetInt      (fofNode *root, char *path);
+char *GetStr      (fofNode *root, char *path);
 
-StringInt   GetValue (char *path);
-STATUS_CODE SetValue (char *path, StringInt val);
+StringInt   GetValue (fofNode *root, char *path);
+STATUS_CODE SetValue (fofNode *root, char *path, StringInt val);
 
-void Enumerate (char *path, void (*callback)(char *path, StringInt val));
+void Enumerate (fofNode *root, char *path, void (*callback)(char *path, StringInt val));
 
-STATUS_CODE Delete (char *path);
+STATUS_CODE Delete (fofNode *root, char *path);
 
 #endif // __TREE_FUNCTIONS_H__

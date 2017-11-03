@@ -23,4 +23,6 @@ bool has_sub_node(fofNode *pn, char *name);
 STATUS_CODE add_sub_node(fofNode *parent, char *name, NODE_TYPE type, StringInt val);
 STATUS_CODE del_sub_node(fofNode *parent, char *name);
 
+fofNode *get_sub_node(fofNode *parent, char *name);
+
 #endif // __FOF_NODE_H__

@@ -122,3 +122,15 @@ STATUS_CODE del_sub_node(fofNode *parent, char *name) {
   }
 
 }
+
+fofNode *get_sub_node(fofNode *parent, char *name) {
+
+  for (int i = 0; i < parent->nodeCount; i++) {
+    if (strcmp(parent->pChildren[i]->pszName, name) == 0) {
+      return (parent->pChildren[i]);
+    }
+  }
+
+  return NULL;
+
+}

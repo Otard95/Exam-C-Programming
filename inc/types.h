@@ -20,7 +20,7 @@ typedef enum {
 
 typedef union {
   int i;
-  char *c;
+  const char *c;
 } StringInt;
 
 #endif // __TYPES_H__

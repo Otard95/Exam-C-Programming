@@ -10,7 +10,7 @@ typedef struct _FOF_NODE {
   int val_i;
   char *val_c;
   int nodeCount;
-  _FOF_NODE **pChildren;
+  struct _FOF_NODE **pChildren;
 
 } fofNode;
 

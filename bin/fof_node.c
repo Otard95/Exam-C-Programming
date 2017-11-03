@@ -11,7 +11,6 @@ fofNode *new_fofNode(char *name, NODE_TYPE type, StringInt val) {
   // set name
   node->pszName = (char*) malloc(strlen(name) + 1);
   strcpy(node->pszName, name);
-  node->pszName[strlen(name)] = '\0';
 
   node->nodeCount = -1;
 
@@ -21,7 +20,6 @@ fofNode *new_fofNode(char *name, NODE_TYPE type, StringInt val) {
   } else if (type == STRING_NODE) {
     node->val_c = (char*) malloc(strlen(val.c) +1);
     strcpy(node->val_c, val.c);
-    node->val_c[strlen(val.c)] = '\0';
     node->nodeCount = -1;
   } else {
     node->val_i = val.i;
@@ -40,7 +38,8 @@ void destroy_fofNode(fofNode *pn) {
     // Node is folder
     // recurse through all child nodes
     while (pn->nodeCount > 0) {
-      destroy_fofNode(pn->pChildren[pn->nodeCount-1]);
+      destroy_fofNode((pn->pChildren[pn->nodeCount-1]));
+      pn->nodeCount--;
     }
     // then free the array itself
     free(pn->pChildren);
@@ -85,6 +84,7 @@ STATUS_CODE add_sub_node(fofNode *parent,
                          StringInt val) {
 
   if (has_sub_node(parent, name)) return NODE_ALREADY_EXISTS;
+  if (get_node_type(parent) != FOLDER_NODE) return NODE_NOT_FOLDER;
 
   parent->pChildren = (fofNode**) realloc(parent->pChildren, sizeof(fofNode*) * parent->nodeCount);
   parent->pChildren[parent->nodeCount] = new_fofNode(name, type, val);
@@ -97,7 +97,8 @@ STATUS_CODE add_sub_node(fofNode *parent,
 STATUS_CODE del_sub_node(fofNode *parent, char *name) {
 
   int del = 0; // bool if node was deleted
-  for (int i = 0; i < parent->nodeCount; i++) {
+  int nCount = parent->nodeCount;
+  for (int i = 0; i < nCount; i++) {
     // If the node is already deleted move this node back in the array
     if (del) {
       parent->pChildren[i-1] = parent->pChildren[i];
@@ -112,8 +113,7 @@ STATUS_CODE del_sub_node(fofNode *parent, char *name) {
   }
 
   if (del) {
-    // if node was found and deleted, decrement nodeCount and realloc array
-    parent->nodeCount--;
+    // if node was found and deleted, realloc array
     parent->pChildren = (fofNode**) realloc(parent->pChildren, sizeof(fofNode*) * parent->nodeCount);
 
     return OK;

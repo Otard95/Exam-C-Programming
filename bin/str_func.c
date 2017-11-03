@@ -11,30 +11,22 @@ char **str_split      (char *input, const char *delim, int *len) {
   *len = 0;
   char *token;
 
-  // printf("Setup\n");
-
   /* get the first token */
   token = strtok(input, delim);
-  // printf("First token\n");
 
    /* walk through other tokens */
   while( token != NULL ) {
 
     (*len)++;
-    // printf("len++ -> realloc\n");
     out = (char**) realloc(out, sizeof(char*) * (*len));
     if (out == NULL) return out;
 
-    // printf("malloc next\n");
     out[(*len)-1] = (char*) malloc(strlen(token)+1);
-    // printf("strcpy\n");
     strcpy(out[(*len)-1], token);
 
-    // printf("get next tok\n");
     token = strtok(NULL, delim);
   }
 
-  // printf("ret\n");
   return out;
 
 }

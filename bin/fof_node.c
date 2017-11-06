@@ -65,6 +65,8 @@ NODE_TYPE get_node_type(fofNode *pn) {
 
 bool has_sub_node(fofNode *pn, char *name) {
 
+  if (get_node_type(pn) != FOLDER_NODE) return false;
+
   for (int i = 0; i < pn->nodeCount; i++) {
     // Find the node
     if (strcmp(pn->pChildren[i]->pszName, name) == 0) {
@@ -124,6 +126,8 @@ STATUS_CODE del_sub_node(fofNode *parent, char *name) {
 }
 
 fofNode *get_sub_node(fofNode *parent, char *name) {
+
+  if (get_node_type(parent) != FOLDER_NODE) return NULL;
 
   for (int i = 0; i < parent->nodeCount; i++) {
     if (strcmp(parent->pChildren[i]->pszName, name) == 0) {

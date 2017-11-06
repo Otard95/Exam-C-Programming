@@ -88,8 +88,15 @@ STATUS_CODE add_sub_node(fofNode *parent,
   if (has_sub_node(parent, name)) return NODE_ALREADY_EXISTS;
   if (get_node_type(parent) != FOLDER_NODE) return NODE_NOT_FOLDER;
 
-  parent->pChildren = (fofNode**) realloc(parent->pChildren, sizeof(fofNode*) * parent->nodeCount);
-  parent->pChildren[parent->nodeCount] = new_fofNode(name, type, val);
+  // expand array
+  fofNode **tmp_arr = (fofNode**) realloc(parent->pChildren, sizeof(fofNode*) * parent->nodeCount);
+  if (tmp_arr == NULL) return ALLOC_FAIL; // return if fail
+  parent->pChildren = tmp_arr;
+
+  // create the new node
+  fofNode *tmp_node = new_fofNode(name, type, val);
+  if (tmp_node == NULL) return ALLOC_FAIL; // return if fail
+  parent->pChildren[parent->nodeCount] = tmp_node;
   parent->nodeCount++;
 
   return OK;
@@ -109,7 +116,6 @@ STATUS_CODE del_sub_node(fofNode *parent, char *name) {
     else if (strcmp(parent->pChildren[i]->pszName, name) == 0) {
       // we found is now destroy if
       destroy_fofNode(parent->pChildren[i]);
-      parent->pChildren[i] = NULL;
       del = 1;
     }
   }

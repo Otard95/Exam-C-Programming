@@ -4,7 +4,8 @@
 #include "fof_node.h"
 #include "types.h"
 
-fofNode *Traverse (fofNode *root, char *path);
+fofNode     *Traverse  (fofNode *root, char *path);
+STATUS_CODE CreatePath (fofNode *root, char *path);
 
 STATUS_CODE SetInt (fofNode *root, char *path, int   val);
 STATUS_CODE SetStr (fofNode *root, char *path, char *val);
@@ -16,7 +17,7 @@ char *GetStr      (fofNode *root, char *path);
 StringInt   GetValue (fofNode *root, char *path);
 STATUS_CODE SetValue (fofNode *root, char *path, StringInt val);
 
-void Enumerate (fofNode *root, char *path, void (*callback)(char *path, StringInt val));
+void Enumerate (fofNode *root, char *path, void (*callback)(char *, StringInt ));
 
 STATUS_CODE Delete (fofNode *root, char *path);
 

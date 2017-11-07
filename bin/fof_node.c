@@ -105,6 +105,9 @@ STATUS_CODE add_sub_node(fofNode *parent,
 
 STATUS_CODE del_sub_node(fofNode *parent, char *name) {
 
+  // if node doesn't exist. end here
+  if (has_sub_node(parent, name) == false) {return NODE_NOT_FOUND;}
+
   int del = 0; // bool if node was deleted
   int nCount = parent->nodeCount;
   for (int i = 0; i < nCount; i++) {

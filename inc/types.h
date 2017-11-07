@@ -6,7 +6,8 @@ typedef unsigned char BYTE;
 typedef enum {
   FOLDER_NODE,
   STRING_NODE,
-  INTEGER_NODE
+  INTEGER_NODE,
+  UNKNOWN
 } NODE_TYPE;
 
 typedef enum {

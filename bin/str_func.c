@@ -8,6 +8,7 @@
 char **str_split      (char *input, const char *delim, int *len) {
 
   char **out = NULL;
+  char **last = NULL;
   *len = 0;
   char *token;
 
@@ -18,8 +19,16 @@ char **str_split      (char *input, const char *delim, int *len) {
   while( token != NULL ) {
 
     (*len)++;
+    last = out;
     out = (char**) realloc(out, sizeof(char*) * (*len));
-    if (out == NULL) return out;
+    if (out == NULL) {
+      // Cleanup
+      for (int i = 0; i < (*len)-1; i++) {
+        free(last[i]);
+      }
+      free(last);
+      return out;
+    }
 
     out[(*len)-1] = (char*) malloc(strlen(token)+1);
     strcpy(out[(*len)-1], token);

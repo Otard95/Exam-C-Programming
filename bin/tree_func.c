@@ -195,11 +195,36 @@ NODE_TYPE GetType (fofNode *root, char *path, STATUS_CODE *sc) {
 int   GetInt (fofNode *root, char *path, STATUS_CODE *sc) {
 
   fofNode *node = Traverse(root, path);
+  if (node == NULL){
+    if (sc != NULL) *sc = NODE_NOT_FOUND;
+    return 0;
+  }
 
+  if (get_node_type(node) != INTEGER_NODE) {
+    if (sc != NULL) *sc = NODE_NOT_INTEGER;
+    return 0;
+  }
+
+  return node->val_i;
 
 }
 
-char *GetStr      (fofNode *root, char *path);
+char *GetStr (fofNode *root, char *path, STATUS_CODE *sc) {
+
+  fofNode *node = Traverse(root, path);
+  if (node == NULL){
+    if (sc != NULL) *sc = NODE_NOT_FOUND;
+    return NULL;
+  }
+
+  if (get_node_type(node) != STRING_NODE) {
+    if (sc != NULL) *sc = NODE_NOT_STRING;
+    return 0;
+  }
+
+  return node->val_c;
+
+}
 
 StringInt   GetValue (fofNode *root, char *path);
 STATUS_CODE SetValue (fofNode *root, char *path, StringInt val);

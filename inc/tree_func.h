@@ -14,7 +14,7 @@ NODE_TYPE GetType (fofNode *, char *, STATUS_CODE *);
 int   GetInt      (fofNode *, char *, STATUS_CODE *);
 char *GetStr      (fofNode *, char *, STATUS_CODE *);
 
-StringInt   GetValue (fofNode *, char *);
+StringInt   GetValue (fofNode *, char *, STATUS_CODE *);
 STATUS_CODE SetValue (fofNode *, char *, StringInt);
 
 void Enumerate (fofNode *, char *, void (*callback)(char *, StringInt ));

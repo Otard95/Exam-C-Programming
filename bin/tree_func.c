@@ -188,11 +188,13 @@ NODE_TYPE GetType (fofNode *root, char *path, STATUS_CODE *sc) {
     return UNKNOWN;
   }
 
+  if (sc != NULL) *sc = OK;
+
   return get_node_type(node);
 
 }
 
-int   GetInt (fofNode *root, char *path, STATUS_CODE *sc) {
+int GetInt (fofNode *root, char *path, STATUS_CODE *sc) {
 
   fofNode *node = Traverse(root, path);
   if (node == NULL){
@@ -204,6 +206,8 @@ int   GetInt (fofNode *root, char *path, STATUS_CODE *sc) {
     if (sc != NULL) *sc = NODE_NOT_INTEGER;
     return 0;
   }
+
+  if (sc != NULL) *sc = OK;
 
   return node->val_i;
 
@@ -222,11 +226,41 @@ char *GetStr (fofNode *root, char *path, STATUS_CODE *sc) {
     return 0;
   }
 
+  if (sc != NULL) *sc = OK;
+
   return node->val_c;
 
 }
 
-StringInt   GetValue (fofNode *root, char *path);
+StringInt GetValue (fofNode *root, char *path, STATUS_CODE *sc) {
+
+  fofNode *node = Traverse(root, path);
+  if (node == NULL){
+    if (sc != NULL) *sc = NODE_NOT_FOUND;
+    return (StringInt) 0;
+  }
+
+  NODE_TYPE type = get_node_type(node);
+
+  if (type == FOLDER_NODE || type == UNKNOWN) {
+    if (sc != NULL) *sc = NODE_NOT_VALUE;
+    return (StringInt) 0;
+  }
+
+  StringInt out;
+
+  if (type == STRING_NODE) {
+    out.c = node->val_c;
+  } else {
+    out.i = node->val_i;
+  }
+
+  if (sc != NULL) *sc = OK;
+
+  return out;
+
+}
+
 STATUS_CODE SetValue (fofNode *root, char *path, StringInt val);
 
 void Enumerate (fofNode *root, char *path, void (*callback)(char *, StringInt));

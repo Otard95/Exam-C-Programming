@@ -46,7 +46,7 @@ STATUS_CODE CreatePath (fofNode *root, char *path) {
       return_sc = add_sub_node(root, split_path[i], FOLDER_NODE, empty_value);
     }
     if (return_sc != OK) {break;}
-     root = get_sub_node(root, split_path[i]);
+    root = get_sub_node(root, split_path[i]);
   }
 
   for (int i = 0; i < len; i++) {
@@ -113,10 +113,92 @@ STATUS_CODE SetInt (fofNode *root, char *path, int val) {
 
 }
 
-STATUS_CODE SetStr (fofNode *root, char *path, char *val);
+STATUS_CODE SetStr (fofNode *root, char *path, char *val) {
 
-NODE_TYPE GetType (fofNode *root, char *path);
-int   GetInt      (fofNode *root, char *path);
+  STATUS_CODE sc;
+
+  // Get path to parrent node
+  int parts_len;
+  char **path_parts = str_split(path, ".", &parts_len);
+  if (path_parts == NULL) return ALLOC_FAIL;
+  char *parent_path = str_arr_join(path_parts, ".", parts_len-1);
+  if (parent_path == NULL) {
+    for (int i = 0; i< parts_len; i++) {
+      free(path_parts[i]);
+    }
+    free(path_parts);
+    return ALLOC_FAIL;
+  }
+
+  // save backup of parent_path
+  char backup[strlen(parent_path)+1];
+  strcpy(backup, parent_path);
+
+  // Create path to parent if not exists
+  sc = CreatePath(root, parent_path);
+  if (sc == OK) {
+
+    strcpy(parent_path, backup); // restore backup
+
+    // Traverse to parent
+    fofNode *parent = Traverse(root, parent_path);
+    if (parent != NULL) { // Traverse failed
+
+      // Create subnode if not exists, if it does update value if correct type
+      sc = add_sub_node(parent, path_parts[parts_len-1], STRING_NODE, (StringInt) val);
+      if (sc == NODE_ALREADY_EXISTS) {
+        // get the value node
+        fofNode *node = get_sub_node(parent, path_parts[parts_len-1]);
+        if (get_node_type(node) == STRING_NODE) {
+
+          // if new string is longer allock new mem
+          if (strlen(node->val_c) < strlen(val)) {
+            free(node->val_c);
+            node->val_c = (char*) malloc(strlen(val)+1);
+            strcpy(node->val_c, val);
+          } else {
+            strcpy(node->val_c, val);
+          }
+          sc = OK;
+
+        } else {
+          sc = NODE_NOT_INTEGER;
+        } // END type check
+      } /* END allready exists*/
+
+    } // END parent != NULL
+
+  } // END ok after CreatePath
+
+  for (int i = 0; i< parts_len; i++) {
+    free(path_parts[i]);
+  }
+  free(path_parts);
+  free(parent_path);
+
+  return sc;
+
+}
+
+NODE_TYPE GetType (fofNode *root, char *path, STATUS_CODE *sc) {
+
+  fofNode *node = Traverse(root, path);
+  if (node == NULL){
+    if (sc != NULL) *sc = NODE_NOT_FOUND;
+    return UNKNOWN;
+  }
+
+  return get_node_type(node);
+
+}
+
+int   GetInt (fofNode *root, char *path, STATUS_CODE *sc) {
+
+  fofNode *node = Traverse(root, path);
+
+
+}
+
 char *GetStr      (fofNode *root, char *path);
 
 StringInt   GetValue (fofNode *root, char *path);

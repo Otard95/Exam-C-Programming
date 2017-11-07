@@ -21,8 +21,8 @@ char **str_split      (char *input, const char *delim, int *len) {
     (*len)++;
     last = out;
     out = (char**) realloc(out, sizeof(char*) * (*len));
-    if (out == NULL) {
-      // Cleanup
+    if (out == NULL) { // is realloc failed
+      // Cleanup using **last.
       for (int i = 0; i < (*len)-1; i++) {
         free(last[i]);
       }

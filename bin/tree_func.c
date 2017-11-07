@@ -62,7 +62,7 @@ STATUS_CODE SetInt (fofNode *root, char *path, int val) {
 
   STATUS_CODE sc;
 
-  // Get path to parrent node
+  // Get path to parent node
   int parts_len;
   char **path_parts = str_split(path, ".", &parts_len);
   if (path_parts == NULL) return ALLOC_FAIL;
@@ -117,7 +117,7 @@ STATUS_CODE SetStr (fofNode *root, char *path, char *val) {
 
   STATUS_CODE sc;
 
-  // Get path to parrent node
+  // Get path to parent node
   int parts_len;
   char **path_parts = str_split(path, ".", &parts_len);
   if (path_parts == NULL) return ALLOC_FAIL;
@@ -263,6 +263,64 @@ StringInt GetValue (fofNode *root, char *path, STATUS_CODE *sc) {
 
 STATUS_CODE SetValue (fofNode *root, char *path, StringInt val);
 
-void Enumerate (fofNode *root, char *path, void (*callback)(char *, StringInt));
+STATUS_CODE Enumerate (fofNode *root, char *path, void (*callback)(char *, StringInt)) {
 
-STATUS_CODE Delete (fofNode *root, char *path);
+  /*
+   *  ## Edit to traverse to parent
+   */
+  fofNode *node = Traverse(root, path);
+  if (node == NULL) {return NODE_NOT_FOUND;}
+
+  NODE_TYPE type = get_node_type(node);
+
+  /*
+   *  ## Possibility for type selection
+   */
+  if (type == FOLDER_NODE || type == UNKNOWN) {return NODE_NOT_VALUE;}
+
+  /*
+   *  ## Execute
+   */
+
+}
+
+STATUS_CODE Delete (fofNode *root, char *path) {
+
+  // we need to traverse to parent so lets parse the path to get the path to prent.
+  int len;
+  char **path_parts = str_split(path, ".", &len);
+  if (path_parts == NULL) {return ALLOC_FAIL;} // if failed to split return.
+  // Now we have the path as seperate parts.
+  // Now join all but the node that we want to delete
+  char *parent_path = str_arr_join(path_parts, ".", len-1);
+  if (parent_path == NULL) { // if failed to join
+    // Cleanup
+    for (int i = 0; i< len; i++) {
+      free(path_parts[i]);
+    }
+    free(path_parts);
+    return ALLOC_FAIL;
+  }
+
+  STATUS_CODE sc = OK;
+
+  // Ok now we can traverse to parent and try deleting the child
+  fofNode *parent = Traverse(root, parent_path);
+  if (parent == NULL) { sc = NODE_NOT_FOUND; }
+  if (sc == OK) {
+
+    // del_sub_node() handles the rest
+    sc = del_sub_node(parent, path_parts[len-1]);
+
+  }
+
+  // remember to clean up
+  for (int i = 0; i< len; i++) {
+    free(path_parts[i]);
+  }
+  free(path_parts);
+  free(parent_path);
+
+  return sc;
+
+}

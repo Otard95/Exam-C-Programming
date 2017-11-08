@@ -3,9 +3,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdarg.h>
 
 
-char **str_split      (char *input, const char *delim, int *len) {
+char **str_split (char *input, const char *delim, int *len) {
 
   char **out = NULL;
   char **last = NULL;
@@ -62,7 +63,7 @@ char *str_arr_join (char **input, const char *sep, int len) {
 
 }
 
-char  *str_filter_out (char *input, const char *filter) {
+char *str_filter_out (char *input, const char *filter) {
 
   int ws_count = 0;
 
@@ -100,5 +101,49 @@ char  *str_filter_out (char *input, const char *filter) {
   } // END for i
 
   return out;
+
+}
+
+char *cat_strings (char *sep, int str_count, ...) {
+
+    va_list valist;
+    int i;
+    char *curr_str;
+
+    int len = 0;
+    char *out;
+    char *last = NULL;
+
+    /* initialize valist for 'str_count' number of arguments */
+    va_start(valist, str_count);
+
+    /* access all the arguments assigned to valist */
+    for (i = 0; i < str_count; i++) {
+
+      // get next string and update 'len'
+      curr_str = va_arg(valist, char*);
+      len += strlen(curr_str);
+      if (i == 0 && sep != NULL) {
+        /* if not first str && 'sep' is specified */
+        len += strlen(sep);
+      }
+
+      last = out;
+      out = (char*) realloc(out, len +1);
+      if (out == NULL) {
+        // Cleanup
+        if (last != NULL) free(last);
+        break;
+      }
+
+      if (i == 0 && sep != NULL) { strcat(out, sep); }
+      strcat(out, curr_str);
+
+    }
+
+    /* clean memory reserved for valist */
+    va_end(valist);
+
+    return out;
 
 }

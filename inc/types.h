@@ -27,4 +27,6 @@ typedef union {
   const char *c;
 } StringInt;
 
+typedef void (EnumerationCallback)(char *, StringInt);
+
 #endif // __TYPES_H__

@@ -4,7 +4,7 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 
-STATUS_CODE read_file_to_str(char *buff, char *filename) {
+STATUS_CODE read_file_to_str(char **buff, char *filename) {
 
   struct stat sBuffer;
   int iRc;
@@ -13,16 +13,18 @@ STATUS_CODE read_file_to_str(char *buff, char *filename) {
   if (iRc == -1) { return FILE_NOT_FOUND; }
 
   FILE *fp = fopen(filename, "r");
-  buff = (char*) malloc(sBuffer.st_size + 1);
+  *buff = (char*) malloc(sBuffer.st_size + 1);
 
-  if (buff == NULL) { return ALLOC_FAIL; }
+  if (*buff == NULL) { return ALLOC_FAIL; }
 
-  if (fread(buff, 1, sBuffer.st_size, fp) != (size_t) sBuffer.st_size) {
-    free (buff);
+  size_t read = fread(*buff, 1, sBuffer.st_size, fp);
+
+  if ((int) read != (int) sBuffer.st_size) {
+    free(*buff);
     return FILE_READ_ERROR;
   }
 
-  buff[sBuffer.st_size] = '\0';
+  (*buff)[sBuffer.st_size] = '\0';
 
   return OK;
 

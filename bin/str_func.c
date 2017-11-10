@@ -147,3 +147,32 @@ char *cat_strings (char *sep, int str_count, ...) {
     return out;
 
 }
+
+char *crop_whitespace (char *str) {
+
+  int len = strlen(str);
+  int new_len = len;
+  int i = 0;
+
+  while (str[i] == ' ') { new_len--; i++; }
+  i = len-1;
+  while (str[i] == ' ') { new_len--; i--; }
+
+  char *out = (char*) malloc(new_len + 1);
+  if (out == NULL) { return out; }
+
+  int j=0;
+  for (i = 0; i < len; i++) {
+
+    if (str[i] != ' ') {
+      out [j] = str[i];
+      j++;
+    }
+
+  }
+
+  out[new_len] = '\0';
+
+  return out;
+
+}

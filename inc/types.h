@@ -19,6 +19,7 @@ typedef enum {
   NODE_ALREADY_EXISTS,
   NODE_NOT_FOUND,
   PATH_NOT_DIRECTORY,
+  INVALID_PATH,
   ALLOC_FAIL
 } STATUS_CODE;
 
@@ -27,6 +28,6 @@ typedef union {
   const char *c;
 } StringInt;
 
-typedef void (EnumerationCallback)(char *, StringInt);
+typedef void (EnumerationCallback)(char *, NODE_TYPE, StringInt);
 
 #endif // __TYPES_H__

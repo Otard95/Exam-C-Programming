@@ -85,8 +85,8 @@ STATUS_CODE add_sub_node(fofNode *parent,
                          NODE_TYPE type,
                          StringInt val) {
 
-  if (has_sub_node(parent, name)) return NODE_ALREADY_EXISTS;
   if (get_node_type(parent) != FOLDER_NODE) return NODE_NOT_FOLDER;
+  if (has_sub_node(parent, name)) return NODE_ALREADY_EXISTS;
 
   // expand array
   fofNode **tmp_arr = (fofNode**) realloc(parent->pChildren, sizeof(fofNode*) * parent->nodeCount);
@@ -119,13 +119,18 @@ STATUS_CODE del_sub_node(fofNode *parent, char *name) {
     else if (strcmp(parent->pChildren[i]->pszName, name) == 0) {
       // we found is now destroy if
       destroy_fofNode(parent->pChildren[i]);
+      parent->pChildren[i] = NULL;
+      (parent->nodeCount)--;
       del = 1;
     }
   }
 
   if (del) {
-    // if node was found and deleted, realloc array
-    parent->pChildren = (fofNode**) realloc(parent->pChildren, sizeof(fofNode*) * parent->nodeCount);
+    // if node was found and deleted, calloc new memory and copy over pointers
+    fofNode **new_mem = (fofNode**) calloc(parent->nodeCount, sizeof(fofNode*));
+    memcpy(new_mem, parent->pChildren, sizeof(fofNode*) * parent->nodeCount);
+    free(parent->pChildren);
+    parent->pChildren = new_mem;
 
     return OK;
   } else {

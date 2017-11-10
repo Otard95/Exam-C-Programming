@@ -4,6 +4,8 @@
 #include "fof_node.h"
 #include "types.h"
 
+fofNode *Initialize_from_file(char *filename, STATUS_CODE *sc);
+
 fofNode     *Traverse  (fofNode *, char *);
 STATUS_CODE CreatePath (fofNode *, char *);
 
@@ -15,7 +17,7 @@ int   GetInt      (fofNode *, char *, STATUS_CODE *);
 char *GetStr      (fofNode *, char *, STATUS_CODE *);
 
 StringInt   GetValue (fofNode *, char *, STATUS_CODE *);
-STATUS_CODE SetValue (fofNode *, char *, StringInt);
+STATUS_CODE SetValue (fofNode *, char *, char *);
 
 STATUS_CODE Enumerate  (fofNode *, char *, EnumerationCallback *);
 STATUS_CODE _enumerate (fofNode *, char **, int len, int index, EnumerationCallback *);

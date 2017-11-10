@@ -20,10 +20,8 @@ fofNode *new_fofNode(char *name, NODE_TYPE type, StringInt val) {
   } else if (type == STRING_NODE) {
     node->val_c = (char*) malloc(strlen(val.c) +1);
     strcpy(node->val_c, val.c);
-    node->nodeCount = -1;
   } else {
     node->val_i = val.i;
-    node->nodeCount = -1;
   }
 
   return node;

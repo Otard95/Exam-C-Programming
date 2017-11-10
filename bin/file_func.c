@@ -18,6 +18,7 @@ STATUS_CODE read_file_to_str(char *buff, char *filename) {
   if (buff == NULL) { return ALLOC_FAIL; }
 
   if (fread(buff, 1, sBuffer.st_size, fp) != (size_t) sBuffer.st_size) {
+    free (buff);
     return FILE_READ_ERROR;
   }
 

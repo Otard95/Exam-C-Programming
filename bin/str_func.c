@@ -41,22 +41,22 @@ char **str_split (char *input, const char *delim, int *len) {
 
 }
 
-char *str_arr_join (char **input, const char *sep, int len) {
+char *str_arr_join (char **input, const char *sep, int start, int end) {
 
   // calculate output strings length
   int out_len = 0;
-  for (int i = 0; i < len; i++) {
+  for (int i = start; i < end; i++) {
     out_len += strlen(input[i]);
   }
-  out_len += strlen(sep) * (len-1);
+  out_len += strlen(sep) * (end - start - 1);
 
   char *out = (char*) malloc(out_len + 1);
   if (out == NULL) return out;
   out[0] = '\0';
 
-  for (int i = 0; i < len; i++) {
+  for (int i = start; i < end; i++) {
     strcat(out, input[i]);
-    if (i < len-1) strcat(out, sep);
+    if (i < end-1) strcat(out, sep);
   }
 
   return out;

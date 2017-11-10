@@ -8,34 +8,93 @@
 #include <string.h>
 #include <stdbool.h>
 
-// fofNode *Initialize_from_file(char *filename, STATUS_CODE *sc) {
-//
-//   // first lest get the file as string so we know it exists
-//   char *file_data;
-//   *sc = read_file_to_str(file_data, filename);
-//   if (*sc != OK) { return NULL; }
-//
-//   // now we need to split this into lines
-//   int len;
-//   char **lines = str_split(file_data, "\n", &len);
-//   if (lines == NULL) { *sc = ALLOC_FAIL; return NULL; }
-//
-//   // Now we start creating the tree.
-//   // So we create the root and loop though all the lines
-//   char name[5];
-//   strcpy(name, "root");
-//   StringInt empty_value;
-//   fofNode *root = new_fofNode(name, FOLDER_NODE, empty_value);
-//
-//   for (int i = 0; i < len; i++) {
-//
-//
-//
-//   }
-//
-//   return root;
-//
-// }
+fofNode *Initialize_from_file(char *filename, STATUS_CODE *sc) {
+
+  // first lest get the file as string so we know it exists
+  char *file_data;
+  *sc = read_file_to_str(&file_data, filename);
+  if (*sc != OK) { return NULL; }
+
+  // now we need to split this into lines
+  int lines_len;
+  char **lines = str_split(file_data, "\n", &lines_len);
+  if (lines == NULL) { *sc = ALLOC_FAIL; return NULL; }
+
+  // Now we start creating the tree.
+  // So we create the root and loop though all the lines
+  char name[5];
+  strcpy(name, "root");
+  StringInt empty_value;
+  fofNode *root = new_fofNode(name, FOLDER_NODE, empty_value);
+  if (root == NULL) {// IF faile free and return
+     *sc = ALLOC_FAIL;
+     for (int i = 0; i < lines_len; i++) {
+       free(lines[i]);
+     }
+     free(lines);
+     return NULL;
+  }
+
+  char *path;
+  char *value;
+
+  for (int i = 0; i < lines_len; i++) {
+
+    // for each line we need to split it on the '=' character
+    int parts_len;
+    char **parts = str_split(lines[i], "=", &parts_len);
+    if(parts == NULL) {// IF faile free and return
+       *sc = ALLOC_FAIL;
+       for (int i = 0; i < lines_len; i++) {
+         free(lines[i]);
+       }
+       free(lines);
+       return NULL;
+    }
+
+    // remove all wite space in parts[0] and crop_whitespace in parts[1]
+    path = str_filter_out(parts[0], " ");
+    if (path == NULL) {// IF faile free and return
+       *sc = ALLOC_FAIL;
+       for (int i = 0; i < lines_len; i++) {
+         free(lines[i]);
+       }
+       free(lines);
+       return NULL;
+    }
+    value = crop_whitespace(parts[1]);
+    if (value == NULL) { // IF faile free and return
+       *sc = ALLOC_FAIL;
+       for (int i = 0; i < lines_len; i++) {
+         free(lines[i]);
+       }
+       free(lines);
+       free(path);
+       return NULL;
+    }
+
+    // now we use SetValue() to insert the value in the new tree_func
+    *sc = SetValue(root, path, value);
+
+    for (int j = 0; j < parts_len; j++) {
+      free(parts[j]);
+    }
+    free(parts);
+    free(value);
+    free(path);
+
+    if (*sc != OK) { break; }
+
+  } // END for i
+
+  for (int i = 0; i < lines_len; i++) {
+    free(lines[i]);
+  }
+  free(lines);
+
+  return root;
+
+}
 
 fofNode *Traverse (fofNode *root, char *path) {
 

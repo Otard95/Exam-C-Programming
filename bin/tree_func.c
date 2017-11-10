@@ -58,15 +58,17 @@ STATUS_CODE CreatePath (fofNode *root, char *path) {
 
 }
 
-STATUS_CODE SetInt (fofNode *root, char *path, int val) {
+STATUS_CODE SetInt (fofNode *root, char *path, int value) {
 
   STATUS_CODE sc;
+  StringInt val;
+  val.i = value;
 
   // Get path to parent node
   int parts_len;
   char **path_parts = str_split(path, ".", &parts_len);
   if (path_parts == NULL) return ALLOC_FAIL;
-  char *parent_path = str_arr_join(path_parts, ".", parts_len-1);
+  char *parent_path = str_arr_join(path_parts, ".", 0, parts_len-1);
   if (parent_path == NULL) {
     for (int i = 0; i< parts_len; i++) {
       free(path_parts[i]);
@@ -94,7 +96,7 @@ STATUS_CODE SetInt (fofNode *root, char *path, int val) {
       // get the value node
       fofNode *node = get_sub_node(parent, path_parts[parts_len-1]);
       if (get_node_type(node) == INTEGER_NODE) {
-        node->val_i = val;
+        node->val_i = val.i;
         sc = OK;
       } else {
         sc = NODE_NOT_INTEGER;
@@ -113,15 +115,17 @@ STATUS_CODE SetInt (fofNode *root, char *path, int val) {
 
 }
 
-STATUS_CODE SetStr (fofNode *root, char *path, char *val) {
+STATUS_CODE SetStr (fofNode *root, char *path, char *value) {
 
   STATUS_CODE sc;
+  StringInt val;
+  val.c = value;
 
   // Get path to parent node
   int parts_len;
   char **path_parts = str_split(path, ".", &parts_len);
   if (path_parts == NULL) return ALLOC_FAIL;
-  char *parent_path = str_arr_join(path_parts, ".", parts_len-1);
+  char *parent_path = str_arr_join(path_parts, ".", 0, parts_len-1);
   if (parent_path == NULL) {
     for (int i = 0; i< parts_len; i++) {
       free(path_parts[i]);
@@ -142,9 +146,10 @@ STATUS_CODE SetStr (fofNode *root, char *path, char *val) {
 
     // Traverse to parent
     fofNode *parent = Traverse(root, parent_path);
-    if (parent != NULL) { // Traverse failed
+    if (parent != NULL) { // Traverse succsess
 
       // Create subnode if not exists, if it does update value if correct type
+
       sc = add_sub_node(parent, path_parts[parts_len-1], STRING_NODE, (StringInt) val);
       if (sc == NODE_ALREADY_EXISTS) {
         // get the value node
@@ -152,17 +157,17 @@ STATUS_CODE SetStr (fofNode *root, char *path, char *val) {
         if (get_node_type(node) == STRING_NODE) {
 
           // if new string is longer allock new mem
-          if (strlen(node->val_c) < strlen(val)) {
+          if (strlen(node->val_c) < strlen(val.c)) {
             free(node->val_c);
-            node->val_c = (char*) malloc(strlen(val)+1);
-            strcpy(node->val_c, val);
+            node->val_c = (char*) malloc(strlen(val.c)+1);
+            strcpy(node->val_c, val.c);
           } else {
-            strcpy(node->val_c, val);
+            strcpy(node->val_c, val.c);
           }
           sc = OK;
 
         } else {
-          sc = NODE_NOT_INTEGER;
+          sc = NODE_NOT_STRING;
         } // END type check
       } /* END allready exists*/
 
@@ -234,17 +239,19 @@ char *GetStr (fofNode *root, char *path, STATUS_CODE *sc) {
 
 StringInt GetValue (fofNode *root, char *path, STATUS_CODE *sc) {
 
+  StringInt empty_value;
+
   fofNode *node = Traverse(root, path);
   if (node == NULL){
     if (sc != NULL) *sc = NODE_NOT_FOUND;
-    return (StringInt) 0;
+    return empty_value;
   }
 
   NODE_TYPE type = get_node_type(node);
 
   if (type == FOLDER_NODE || type == UNKNOWN) {
     if (sc != NULL) *sc = NODE_NOT_VALUE;
-    return (StringInt) 0;
+    return empty_value;
   }
 
   StringInt out;
@@ -263,24 +270,82 @@ StringInt GetValue (fofNode *root, char *path, STATUS_CODE *sc) {
 
 STATUS_CODE SetValue (fofNode *root, char *path, StringInt val);
 
-STATUS_CODE Enumerate (fofNode *root, char *path, void (*callback)(char *, StringInt)) {
+STATUS_CODE Enumerate  (fofNode *root, char *path, EnumerationCallback *callback) {
 
-  /*
-   *  ## Edit to traverse to parent
-   */
-  fofNode *node = Traverse(root, path);
-  if (node == NULL) {return NODE_NOT_FOUND;}
+  // split path
+  int len;
+  char **split_path = str_split(path, ".", &len);
 
-  NODE_TYPE type = get_node_type(node);
+  STATUS_CODE sc = _enumerate(root, split_path, len, 0, callback);
 
-  /*
-   *  ## Possibility for type selection
-   */
-  if (type == FOLDER_NODE || type == UNKNOWN) {return NODE_NOT_VALUE;}
+  for (int i = 0; i < len; i++) {
+    free(split_path[i]);
+  }
+  free(split_path);
 
-  /*
-   *  ## Execute
-   */
+  return sc;
+
+}
+
+STATUS_CODE _enumerate (fofNode *root,
+                        char **path,
+                        int len,
+                        int index,
+                        EnumerationCallback *callback) {
+
+  // First off we check if we've reached the en of the path
+  if (index >= len) {
+    // in this case just call the callback with the root node
+    char *full_path = str_arr_join(path, ".", 0, len);
+
+    STATUS_CODE sc;
+    StringInt val = GetValue(root, NULL, &sc);
+    if (sc != OK) {
+      free(full_path);
+      return sc;
+    }
+
+    callback(full_path, get_node_type(root), val);
+
+    free(full_path);
+    return OK;
+
+  }
+
+  // If the current index of path is '*' we need to recurse over all sub-nodes
+  if (strcmp(path[index], "*") == 0) {
+    // to enumerate we need to make sure the root is a FOLDER_NODE
+    if (get_node_type(root) != FOLDER_NODE) { return PATH_NOT_DIRECTORY; }
+
+    // now we go through all sub-nodes and replace the current path('*')
+    // with the nodes name and recurse trough all
+    // so we need to backup that char*
+    char *backup = path[index];
+    // we also need to keep track of the STATUS_CODE
+    STATUS_CODE sc;
+    for (int i = 0; i < root->nodeCount; i++) {
+
+      char *node_name = root->pChildren[i]->pszName;
+      path[index] = node_name;
+
+      // we let the next round of the function handle the traversing
+      sc = _enumerate(root, path, len, index, callback);
+
+      if (sc != OK) { path[index] = backup; return sc; }
+
+    } // END for i
+
+    path[index] = backup;
+
+    return OK;
+
+  } // END If path[index] == "*"
+
+  // if we get here we just need to traverse and recurse
+  // make sure root has the subnode specified by path
+  if (has_sub_node(root, path[index]) == false) { return INVALID_PATH; }
+
+  return _enumerate(get_sub_node(root, path[index]), path, len, index+1, callback);
 
 }
 
@@ -292,7 +357,7 @@ STATUS_CODE Delete (fofNode *root, char *path) {
   if (path_parts == NULL) {return ALLOC_FAIL;} // if failed to split return.
   // Now we have the path as seperate parts.
   // Now join all but the node that we want to delete
-  char *parent_path = str_arr_join(path_parts, ".", len-1);
+  char *parent_path = str_arr_join(path_parts, ".", 0, len-1);
   if (parent_path == NULL) { // if failed to join
     // Cleanup
     for (int i = 0; i< len; i++) {

@@ -1,11 +1,41 @@
 #include "../inc/tree_func.h"
 #include "../inc/fof_node.h"
-#include "../inc/types.h"
 #include "../inc/str_func.h"
+#include "../inc/file_func.h"
+#include "../inc/types.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+
+// fofNode *Initialize_from_file(char *filename, STATUS_CODE *sc) {
+//
+//   // first lest get the file as string so we know it exists
+//   char *file_data;
+//   *sc = read_file_to_str(file_data, filename);
+//   if (*sc != OK) { return NULL; }
+//
+//   // now we need to split this into lines
+//   int len;
+//   char **lines = str_split(file_data, "\n", &len);
+//   if (lines == NULL) { *sc = ALLOC_FAIL; return NULL; }
+//
+//   // Now we start creating the tree.
+//   // So we create the root and loop though all the lines
+//   char name[5];
+//   strcpy(name, "root");
+//   StringInt empty_value;
+//   fofNode *root = new_fofNode(name, FOLDER_NODE, empty_value);
+//
+//   for (int i = 0; i < len; i++) {
+//
+//
+//
+//   }
+//
+//   return root;
+//
+// }
 
 fofNode *Traverse (fofNode *root, char *path) {
 
@@ -268,7 +298,38 @@ StringInt GetValue (fofNode *root, char *path, STATUS_CODE *sc) {
 
 }
 
-STATUS_CODE SetValue (fofNode *root, char *path, StringInt val);
+STATUS_CODE SetValue (fofNode *root, char *path, char *val) {
+
+  // Parese val to correct type
+  NODE_TYPE type;
+  StringInt value;
+  char *filtered;
+
+  if (val[0] == '"') {
+    type = STRING_NODE;
+    filtered = str_filter_out(val, "\"");
+    value.c = filtered;
+  } else {
+    type = INTEGER_NODE;
+    value.i = atoi(val);
+  }
+
+  STATUS_CODE sc;
+
+  if (type == STRING_NODE) {
+
+    sc = SetStr(root, path, (char*) value.c);
+    free (filtered);
+
+  } else {
+
+    sc = SetInt(root, path, value.i);
+
+  }
+
+  return sc;
+
+}
 
 STATUS_CODE Enumerate  (fofNode *root, char *path, EnumerationCallback *callback) {
 

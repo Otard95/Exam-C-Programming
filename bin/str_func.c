@@ -100,6 +100,8 @@ char *str_filter_out (char *input, const char *filter) {
 
   } // END for i
 
+  out[str_len - ws_count] = '\0';
+
   return out;
 
 }

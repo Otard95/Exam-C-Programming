@@ -13,7 +13,7 @@ fofNode *Initialize_from_file(char *filename, STATUS_CODE *sc) {
   // first lest get the file as string so we know it exists
   char *file_data;
   *sc = read_file_to_str(&file_data, filename);
-  if (*sc != OK) { return NULL; }
+  if (*sc != OK) { printf("read file fail\n"); return NULL; }
 
   // now we need to split this into lines
   int lines_len;
@@ -45,8 +45,8 @@ fofNode *Initialize_from_file(char *filename, STATUS_CODE *sc) {
     char **parts = str_split(lines[i], "=", &parts_len);
     if(parts == NULL) {// IF faile free and return
        *sc = ALLOC_FAIL;
-       for (int i = 0; i < lines_len; i++) {
-         free(lines[i]);
+       for (int j = 0; j < lines_len; j++) {
+         free(lines[j]);
        }
        free(lines);
        return NULL;
@@ -56,7 +56,7 @@ fofNode *Initialize_from_file(char *filename, STATUS_CODE *sc) {
     path = str_filter_out(parts[0], " ");
     if (path == NULL) {// IF faile free and return
        *sc = ALLOC_FAIL;
-       for (int i = 0; i < lines_len; i++) {
+       for (int j = 0; j < lines_len; j++) {
          free(lines[i]);
        }
        free(lines);
@@ -65,8 +65,8 @@ fofNode *Initialize_from_file(char *filename, STATUS_CODE *sc) {
     value = crop_whitespace(parts[1]);
     if (value == NULL) { // IF faile free and return
        *sc = ALLOC_FAIL;
-       for (int i = 0; i < lines_len; i++) {
-         free(lines[i]);
+       for (int j = 0; j < lines_len; j++) {
+         free(lines[j]);
        }
        free(lines);
        free(path);
@@ -83,7 +83,7 @@ fofNode *Initialize_from_file(char *filename, STATUS_CODE *sc) {
     free(value);
     free(path);
 
-    if (*sc != OK) { break; }
+    if (*sc != OK) { printf("break\n"); break; }
 
   } // END for i
 

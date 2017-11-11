@@ -10,7 +10,7 @@ STATUS_CODE read_file_to_str(char **buff, char *filename) {
   int iRc;
 
   iRc = stat(filename, &sBuffer);
-  if (iRc == -1) { return FILE_NOT_FOUND; }
+  if (iRc == -1) { printf("file not found\n"); return FILE_NOT_FOUND; }
 
   FILE *fp = fopen(filename, "r");
   *buff = (char*) malloc(sBuffer.st_size + 1);
@@ -20,6 +20,7 @@ STATUS_CODE read_file_to_str(char **buff, char *filename) {
   size_t read = fread(*buff, 1, sBuffer.st_size, fp);
 
   if ((int) read != (int) sBuffer.st_size) {
+    printf("size dif\n");
     free(*buff);
     return FILE_READ_ERROR;
   }

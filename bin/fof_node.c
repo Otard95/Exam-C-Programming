@@ -115,7 +115,7 @@ STATUS_CODE add_sub_node(fofNode *parent,
   }
 
   parent->pChildren[insert_at] = new_node;
-  parent->nodeCount++;
+  (parent->nodeCount)++;
 
   return OK;
 

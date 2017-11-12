@@ -16,7 +16,7 @@ $ ./main test_text.txt
 ```
 
 Read through the output and make sure it ran as expected.  
-You can also use the `help` target like so `$ make help` to see the all you options.
+You can also use the `help` target like so `$ make help` to see the all your options.
 
 ### TODO
 

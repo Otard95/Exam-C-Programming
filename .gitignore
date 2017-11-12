@@ -62,4 +62,7 @@ cmake-build-debug
 
 test*
 !test_text.txt
+!inc/tests.h
+!tests.c
+main
 *.BAK

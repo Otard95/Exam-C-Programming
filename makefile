@@ -1,3 +1,7 @@
+ifndef VERBOSE
+.SILENT:
+endif
+
 CC=gcc
 CFLAGS=-g -O0
 
@@ -9,8 +13,12 @@ obj/%.o: bin/%.c
 obj/%.o: ./%.c
 	$(CC) -c $^ -o $@
 
-main: $(DEPS)
-	$(CC) $^ $(CFLAGS) -o main
+main: echoInfo $(DEPS)
+	$(CC) $(DEPS) $(CFLAGS) -o main
+	echo Done!
+
+echoInfo:
+	echo Making main ...
 
 info: README.md
 	cat README.md
@@ -19,4 +27,6 @@ help: help.txt
 	cat help.txt
 
 clean:
-	rm **/*.o *.o main
+	echo Cleaning project directory ...
+	rm -f **/*.o *.o main
+	echo Done!

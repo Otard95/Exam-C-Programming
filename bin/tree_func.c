@@ -255,6 +255,35 @@ NODE_TYPE GetType (fofNode *root, char *path, STATUS_CODE *sc) {
 
 }
 
+char *GetText(fofNode *root, char *name, STATUS_CODE *sc) {
+
+  if (strcmp(root->pszName, name) == 0) { // is this the correct node
+    if (get_node_type(root) == STRING_NODE) { // is it type string
+      *sc = OK;
+      return root->val_c;
+    } else {
+      // wrong type
+      *sc = NODE_NOT_STRING;
+      return NULL;
+    }
+  }
+
+  if (get_node_type(root) == FOLDER_NODE) {
+    // resurese down all nodes til the node is found
+    for (size_t i = 0; i < root->nodeCount; i++) {
+      char *out = GetText(root->pChildren[i], name, sc);
+      if (*sc == NODE_NOT_STRING || *sc == OK) {// Eighter of these means the node was found
+        return out;
+      }
+    } // END for i
+  } // END type == FOLDER_NODE
+
+  // if this is not the correct node and is not a folder the node was not found
+  *sc = NODE_NOT_FOUND;
+  return NULL;
+
+}
+
 int GetInt (fofNode *root, char *path, STATUS_CODE *sc) {
 
   fofNode *node = Traverse(root, path);

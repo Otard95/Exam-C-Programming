@@ -15,6 +15,7 @@ STATUS_CODE SetStr (fofNode *, char *, char *);
 NODE_TYPE GetType (fofNode *, char *, STATUS_CODE *);
 int   GetInt      (fofNode *, char *, STATUS_CODE *);
 char *GetStr      (fofNode *, char *, STATUS_CODE *);
+char *GetText     (fofNode *, char *, STATUS_CODE *);
 
 StringInt   GetValue (fofNode *, char *, STATUS_CODE *);
 STATUS_CODE SetValue (fofNode *, char *, char*);

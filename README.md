@@ -20,8 +20,7 @@ You can also use the `help` target like so `$ make help` to see the all your op
 
 ### TODO
 
- - Sort nodes as they are added
- - Binary search when traversing tree
+ - Binary search when searching tree
 
 ### Test's
 

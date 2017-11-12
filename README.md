@@ -8,3 +8,10 @@ Then if there is no error's the user can then replace the call to `tests()`(and 
 ### TODO
 
  - GetText() - Will most likely use the Enumerate() to find the desired node
+
+### Test's
+
+Solution tested on/in:
+ - Project folder (Full Install Ubuntu 17.10).
+ - Random directory (Full Install Ubuntu 17.10).
+ - Random directory (VM Ubuntu 17.10).

@@ -20,12 +20,24 @@ fofNode *Initialize_from_file(char *filename, STATUS_CODE *sc) {
   strcpy(name, "root");
   StringInt empty_value;
   fofNode *root = new_fofNode(name, FOLDER_NODE, empty_value);
-
-  FILE *fp = fopen(filename, "r");
+  if (root == NULL) { *sc = ALLOC_FAIL; return NULL; }
 
   //printf("malloc\n");
   char *path = (char*) malloc(256);
+  if (path == NULL) {
+    destroy_fofNode(root);
+    *sc = ALLOC_FAIL;
+    return NULL;
+  }
   char *val = (char*) malloc(256);
+  if (val == NULL) {
+    destroy_fofNode(root);
+    free(path);
+    *sc = ALLOC_FAIL;
+    return NULL;
+  }
+
+  FILE *fp = fopen(filename, "r");
 
   while (2 == fscanf(fp, "%s%*[ ]=%*[ ]%[^\n]", path, val)) {
     //printf("while\n");
@@ -37,10 +49,14 @@ fofNode *Initialize_from_file(char *filename, STATUS_CODE *sc) {
 
   }
 
+  fclose(fp);
+
   //printf("done\n");
 
   free(path);
   free(val);
+
+  *sc = OK;
 
   return root;
 

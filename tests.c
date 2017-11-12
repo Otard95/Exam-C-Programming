@@ -20,6 +20,7 @@ void tests(fofNode *root) {
    * for each test.
    */
   char path[80];
+  char name[20];
   StringInt val;
   NODE_TYPE type;
   STATUS_CODE sc;
@@ -101,12 +102,24 @@ void tests(fofNode *root) {
 
   // ### END GetType() and GetValue() Test
 
-  // Enumerate() Test
+  // ### Enumerate() Test
   printf("Enumerate() Test:\n");
 
   strcpy(path, "strings.*.*");
   printf("Path to Enumerate = '%s'\n\n", path);
   Enumerate(root, path, &print_sub_nodes);
+  printf("\n----------------------------------\n\n");
+
+  // ### GetText() Test
+  printf("GetText() Test:\n");
+
+  strcpy(name, "server1");
+  val.c = GetText(root, name, &sc);
+  if (sc != OK) {
+    printf("Failed to find node by with name 'server1'\n");
+  } else {
+    printf("Node with name 'server1' = %s\n", val.c);
+  }
   printf("\n----------------------------------\n\n");
 
   // ### Delete() Test

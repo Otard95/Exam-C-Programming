@@ -96,10 +96,25 @@ STATUS_CODE add_sub_node(fofNode *parent,
   }
 
   // create the new node
-  fofNode *tmp_node = new_fofNode(name, type, val);
-  if (tmp_node == NULL) { return ALLOC_FAIL; } // return if fail
+  fofNode *new_node = new_fofNode(name, type, val);
+  if (new_node == NULL) { return ALLOC_FAIL; } // return if fail
   // Insert at positions to keep soreted
-  parent->pChildren[parent->nodeCount] = tmp_node;
+  // Find index to insert at
+  int insert_at = 0;
+  for (int i = 0; i < parent->nodeCount; i++) {
+    char *node_name = parent->pChildren[i]->pszName;
+    if (strcasecmp(node_name, name) > 0) {
+      insert_at = i;
+      break;
+    }
+  }
+
+  // nodes at insert_at and up to the right(i+1)
+  for (int i = parent->nodeCount; i > insert_at; i--) {
+    parent->pChildren[i] = parent->pChildren[i-1];
+  }
+
+  parent->pChildren[insert_at] = new_node;
   parent->nodeCount++;
 
   return OK;

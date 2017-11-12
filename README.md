@@ -12,6 +12,6 @@ Then if there is no error's the user can then replace the call to `tests()`(and 
 ### Test's
 
 Solution tested on/in:
- - Project folder (Full Install Ubuntu 17.10).
- - Random directory (Full Install Ubuntu 17.10).
- - Random directory (VM Ubuntu 17.10).
+ - Project folder - Origin system (Full Install Ubuntu 17.10).
+ - Random directory - Origin system (Full Install Ubuntu 17.10).
+ - Random directory - VirtualBox (VM Ubuntu 17.10).

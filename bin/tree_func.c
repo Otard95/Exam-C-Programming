@@ -7,90 +7,41 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <sys/stat.h>
 
 fofNode *Initialize_from_file(char *filename, STATUS_CODE *sc) {
 
-  // first lest get the file as string so we know it exists
-  char *file_data;
-  *sc = read_file_to_str(&file_data, filename);
-  if (*sc != OK) { printf("read file fail\n"); return NULL; }
+  struct stat sBuffer;
+  int iRc;
 
-  // now we need to split this into lines
-  int lines_len;
-  char **lines = str_split(file_data, "\n", &lines_len);
-  if (lines == NULL) { *sc = ALLOC_FAIL; return NULL; }
+  iRc = stat(filename, &sBuffer);
+  if (iRc == -1) { printf("file not found\n"); *sc = FILE_NOT_FOUND; return NULL; }
 
-  // Now we start creating the tree.
-  // So we create the root and loop though all the lines
   char name[5];
   strcpy(name, "root");
   StringInt empty_value;
   fofNode *root = new_fofNode(name, FOLDER_NODE, empty_value);
-  if (root == NULL) {// IF faile free and return
-     *sc = ALLOC_FAIL;
-     for (int i = 0; i < lines_len; i++) {
-       free(lines[i]);
-     }
-     free(lines);
-     return NULL;
+
+  FILE *fp = fopen(filename, "r");
+
+  printf("malloc\n");
+  char *path = (char*) malloc(256);
+  char *val = (char*) malloc(256);
+
+  while (2 == fscanf(fp, "%s%*[ ]=%*[ ]%[^\n]", path, val)) {
+    printf("while\n");
+
+    printf("Path : %s\n", path);
+    printf("Val  : %s\n", val);
+
+    SetValue(root, path, val);
+
   }
 
-  char *path;
-  char *value;
+  printf("done\n");
 
-  for (int i = 0; i < lines_len; i++) {
-
-    // for each line we need to split it on the '=' character
-    int parts_len;
-    char **parts = str_split(lines[i], "=", &parts_len);
-    if(parts == NULL) {// IF faile free and return
-       *sc = ALLOC_FAIL;
-       for (int j = 0; j < lines_len; j++) {
-         free(lines[j]);
-       }
-       free(lines);
-       return NULL;
-    }
-
-    // remove all wite space in parts[0] and crop_whitespace in parts[1]
-    path = str_filter_out(parts[0], " ");
-    if (path == NULL) {// IF faile free and return
-       *sc = ALLOC_FAIL;
-       for (int j = 0; j < lines_len; j++) {
-         free(lines[i]);
-       }
-       free(lines);
-       return NULL;
-    }
-    value = crop_whitespace(parts[1]);
-    if (value == NULL) { // IF faile free and return
-       *sc = ALLOC_FAIL;
-       for (int j = 0; j < lines_len; j++) {
-         free(lines[j]);
-       }
-       free(lines);
-       free(path);
-       return NULL;
-    }
-
-    // now we use SetValue() to insert the value in the new tree_func
-    *sc = SetValue(root, path, value);
-
-    for (int j = 0; j < parts_len; j++) {
-      free(parts[j]);
-    }
-    free(parts);
-    free(value);
-    free(path);
-
-    if (*sc != OK) { printf("break\n"); break; }
-
-  } // END for i
-
-  for (int i = 0; i < lines_len; i++) {
-    free(lines[i]);
-  }
-  free(lines);
+  free(path);
+  free(val);
 
   return root;
 
@@ -213,7 +164,8 @@ STATUS_CODE SetStr (fofNode *root, char *path, char *value) {
   // Get path to parent node
   int parts_len;
   char **path_parts = str_split(path, ".", &parts_len);
-  if (path_parts == NULL) return ALLOC_FAIL;
+  if (path_parts == NULL) { return ALLOC_FAIL; }
+
   char *parent_path = str_arr_join(path_parts, ".", 0, parts_len-1);
   if (parent_path == NULL) {
     for (int i = 0; i< parts_len; i++) {
@@ -239,7 +191,7 @@ STATUS_CODE SetStr (fofNode *root, char *path, char *value) {
 
       // Create subnode if not exists, if it does update value if correct type
 
-      sc = add_sub_node(parent, path_parts[parts_len-1], STRING_NODE, (StringInt) val);
+      sc = add_sub_node(parent, path_parts[parts_len-1], STRING_NODE, val);
       if (sc == NODE_ALREADY_EXISTS) {
         // get the value node
         fofNode *node = get_sub_node(parent, path_parts[parts_len-1]);
@@ -359,30 +311,18 @@ StringInt GetValue (fofNode *root, char *path, STATUS_CODE *sc) {
 
 STATUS_CODE SetValue (fofNode *root, char *path, char *val) {
 
-  // Parese val to correct type
-  NODE_TYPE type;
-  StringInt value;
-  char *filtered;
-
-  if (val[0] == '"') {
-    type = STRING_NODE;
-    filtered = str_filter_out(val, "\"");
-    value.c = filtered;
-  } else {
-    type = INTEGER_NODE;
-    value.i = atoi(val);
-  }
-
   STATUS_CODE sc;
 
-  if (type == STRING_NODE) {
+  if (val[0] == '"') {
 
-    sc = SetStr(root, path, (char*) value.c);
-    free (filtered);
+    char *clean_val = str_filter_out(val, "\"");
+    sc = SetStr(root, path, clean_val);
+    free(clean_val);
 
   } else {
 
-    sc = SetInt(root, path, value.i);
+    int i_val = atoi(val);
+    sc = SetInt(root, path, i_val);
 
   }
 

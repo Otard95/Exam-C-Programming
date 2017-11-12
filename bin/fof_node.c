@@ -49,6 +49,7 @@ void destroy_fofNode(fofNode *pn) {
   }
 
   // last free the actual node
+  free(pn->pszName);
   free(pn);
 
 }
@@ -83,17 +84,20 @@ STATUS_CODE add_sub_node(fofNode *parent,
                          NODE_TYPE type,
                          StringInt val) {
 
-  if (get_node_type(parent) != FOLDER_NODE) return NODE_NOT_FOLDER;
+  if (get_node_type(parent) != FOLDER_NODE) return PATH_NOT_DIRECTORY;
   if (has_sub_node(parent, name)) return NODE_ALREADY_EXISTS;
 
   // expand array
-  fofNode **tmp_arr = (fofNode**) realloc(parent->pChildren, sizeof(fofNode*) * parent->nodeCount);
-  if (tmp_arr == NULL) return ALLOC_FAIL; // return if fail
-  parent->pChildren = tmp_arr;
+  fofNode **bak_arr = parent->pChildren;
+  parent->pChildren = (fofNode**) realloc(parent->pChildren, sizeof(fofNode*) * (parent->nodeCount + 1));
+  if (parent->pChildren == NULL) { // return if fail
+    parent->pChildren = bak_arr;
+    return ALLOC_FAIL;
+  }
 
   // create the new node
   fofNode *tmp_node = new_fofNode(name, type, val);
-  if (tmp_node == NULL) return ALLOC_FAIL; // return if fail
+  if (tmp_node == NULL) { return ALLOC_FAIL; } // return if fail
   parent->pChildren[parent->nodeCount] = tmp_node;
   parent->nodeCount++;
 

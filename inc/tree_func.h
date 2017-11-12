@@ -17,7 +17,7 @@ int   GetInt      (fofNode *, char *, STATUS_CODE *);
 char *GetStr      (fofNode *, char *, STATUS_CODE *);
 
 StringInt   GetValue (fofNode *, char *, STATUS_CODE *);
-STATUS_CODE SetValue (fofNode *, char *, char *);
+STATUS_CODE SetValue (fofNode *, char *, char*);
 
 STATUS_CODE Enumerate  (fofNode *, char *, EnumerationCallback *);
 STATUS_CODE _enumerate (fofNode *, char **, int len, int index, EnumerationCallback *);

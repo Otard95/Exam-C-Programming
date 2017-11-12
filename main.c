@@ -1,6 +1,4 @@
-#include "inc/types.h"
-#include "inc/fof_node.h"
-#include "inc/tree_func.h"
+#include "inc/btree.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>

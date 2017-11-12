@@ -1,7 +1,6 @@
 #include "../inc/tree_func.h"
 #include "../inc/fof_node.h"
 #include "../inc/str_func.h"
-#include "../inc/file_func.h"
 #include "../inc/types.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,7 +14,7 @@ fofNode *Initialize_from_file(char *filename, STATUS_CODE *sc) {
   int iRc;
 
   iRc = stat(filename, &sBuffer);
-  if (iRc == -1) { printf("file not found\n"); *sc = FILE_NOT_FOUND; return NULL; }
+  if (iRc == -1) { *sc = FILE_NOT_FOUND; return NULL; }
 
   char name[5];
   strcpy(name, "root");
@@ -24,21 +23,21 @@ fofNode *Initialize_from_file(char *filename, STATUS_CODE *sc) {
 
   FILE *fp = fopen(filename, "r");
 
-  printf("malloc\n");
+  //printf("malloc\n");
   char *path = (char*) malloc(256);
   char *val = (char*) malloc(256);
 
   while (2 == fscanf(fp, "%s%*[ ]=%*[ ]%[^\n]", path, val)) {
-    printf("while\n");
+    //printf("while\n");
 
-    printf("Path : %s\n", path);
-    printf("Val  : %s\n", val);
+    //printf("Path : %s\n", path);
+    //printf("Val  : %s\n", val);
 
     SetValue(root, path, val);
 
   }
 
-  printf("done\n");
+  //printf("done\n");
 
   free(path);
   free(val);

@@ -20,6 +20,7 @@ You can also use the `help` target like so `$ make help` to see the all your op
 
 ### TODO
 
+ - Fix sorted insert
  - Binary search when searching tree
 
 ### Test's

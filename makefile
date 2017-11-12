@@ -13,11 +13,12 @@ obj/%.o: bin/%.c
 obj/%.o: ./%.c
 	$(CC) -c $^ -o $@
 
-main: echoInfo $(DEPS)
+main: setup $(DEPS)
 	$(CC) $(DEPS) $(CFLAGS) -o main
 	echo Done!
 
-echoInfo:
+setup:
+	mkdir -p obj/
 	echo Making main ...
 
 info: README.md

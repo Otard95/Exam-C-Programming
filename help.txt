@@ -1,0 +1,8 @@
+Targets:
+ - main (default) | Makes the main executable.
+ - info           | Prints README.md to terminal (recommend reading this on git or in a markdown preview).
+ - help           | Shows this.
+ - clean          | Removed all .o files and the main executable
+
+Running make with detailed output:
+  make <target> VERBOSE=1

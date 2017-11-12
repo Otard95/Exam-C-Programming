@@ -98,6 +98,7 @@ STATUS_CODE add_sub_node(fofNode *parent,
   // create the new node
   fofNode *tmp_node = new_fofNode(name, type, val);
   if (tmp_node == NULL) { return ALLOC_FAIL; } // return if fail
+  // Insert at positions to keep soreted
   parent->pChildren[parent->nodeCount] = tmp_node;
   parent->nodeCount++;
 

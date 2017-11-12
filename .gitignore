@@ -61,4 +61,5 @@ cmake-build-debug
 # !! My Excludes
 
 test*
+!test_text.txt
 *.BAK
